@@ -4,24 +4,19 @@ This is a [Cordova](http://cordova.apache.org/) plugin for the Yozio mobile app 
 
 You can find out more about Yozio here: [https://www.yozio.com](https://www.yozio.com).
 
-This version of the plugin uses versions `2.0.1` (iOS) and `1.1.13` (Android) of the Yozio SDK. Documentation for Yozio SDKs can be found [here](https://support.yozio.com/customer/en/portal/topics/743145-sdk/articles).
+This version of the plugin uses versions `2.0.1` (iOS) and `1.1.13` (Android) of the Yozio SDK. Documentation for Yozio SDKs can be found [here for iOS](https://docs.yozio.com/documents/base-sdk-setup--2) and [here for Android](https://docs.yozio.com/documents/base-sdk-setup).
 
 **This plugin is a work in progress and not yet ready for production use (Android support and TypeScript definitions are still being added).**
 
 # Install
 
-To add the plugin to your Cordova project, simply add the plugin from the npm registry:
+To add the plugin to your Cordova project, simply add the plugin from the npm registry. You'll need to specify your app and secret keys via the variables flags. You can obtain your keys from the Yozio console's SDK page.
 
-    cordova plugin add cordova-plugin-yozio
+    cordova plugin add cordova-plugin-yozio --variable YOZIO_APP_KEY=app_key_here --variable YOZIO_APP_SECRET=secret_key_here
 
 Alternatively, you can install the latest version of the plugin directly from git:
 
-    cordova plugin add https://github.com/Justin-Credible/cordova-plugin-yozio
-
-Next, you'll need to add your app and secret keys to the `config.xml` file. You can obtain your keys from the Yozio console's SDK page.
-
-    <preference name="YozioPlugin_AppKey" value="00000000-0000-0000-0000-000000000000"/>
-    <preference name="YozioPlugin_SecretKey" value="00000000-0000-0000-0000-000000000000"/>
+    cordova plugin add https://github.com/Justin-Credible/cordova-plugin-yozio --variable YOZIO_APP_KEY=app_key_here --variable YOZIO_APP_SECRET=secret_key_here
 
 # Usage
 
@@ -44,7 +39,7 @@ Method Signature:
 Example Usage:
 
     YozioPlugin.getIsNewInstall(function(isNewInstall) {
-    	console.log("IsNewInstall: " + isNewInstall);
+        console.log("IsNewInstall: " + isNewInstall);
     }
 
 ## Get Installation Metadata
@@ -58,7 +53,7 @@ Method Signature:
 Example Usage:
 
     YozioPlugin.getInstallMetadata(function(installMetadata) {
-    	console.log("Install Metadata: " + installMetadata);
+        console.log("Install Metadata: " + installMetadata);
     }
 
 ## Get Deep Link Metadata
@@ -72,9 +67,9 @@ Method Signature:
 Example Usage:
 
     YozioPlugin.getLastDeeplinkMetadata(function(metadata) {
-    	console.log("Deep Link Metadata: " + metadata);
+        console.log("Deep Link Metadata: " + metadata);
     }
-    
+
 ## User Sign Up Tracking
 
 Used to track a user sign up event.

@@ -5,7 +5,6 @@
 //
 
 #import <objc/runtime.h>
-#import "../../../CordovaLib/Classes/CDVConfigParser.h"
 #import "AppDelegate.h"
 #import "Yozio.h"
 #import "YozioPlugin.h"
@@ -33,7 +32,7 @@
 
     // If we added it, then replace our call with the original name.
     if (didAddMethod) {
-        
+
         // There might not have been an original method, its optional on the delegate.
         if (originalMethod) {
             
@@ -50,7 +49,7 @@
                                 method_getTypeEncoding(defaultMethod));
         }
     } else {
-        
+
         // The method was already there, swap methods.
         method_exchangeImplementations(originalMethod, swizzledMethod);
     }
@@ -83,38 +82,9 @@
 - (BOOL)yozioPlugin_application:(UIApplication *)application
   didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
-    CDVConfigParser* configParserDelegate = [[CDVConfigParser alloc] init];
-
-    // Build the path to the config.xml file located in the app bundle.
-    NSString* path = [[NSBundle mainBundle] pathForResource:@"config" ofType:@"xml"];
-
-    // Ensure the config.xml file exists.
-    if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-        NSLog(@"YozioPlugin: Could not locate config.xml to load Yozio keys from; Yozio is not active.");
-
-        // Delegate to the original method.
-        return [self yozioPlugin_application:application didFinishLaunchingWithOptions:launchOptions];
-    }
-
-    // Instantiate an XML parser for config.xml.
-    NSURL* url = [NSURL fileURLWithPath:path];
-    NSXMLParser* configParser = [[NSXMLParser alloc] initWithContentsOfURL:url];
-
-    // Ensure we were able to instantiate the XML parser.
-    if (configParser == nil) {
-        NSLog(@"YozioPlugin: Failed to initialize XML parser; Yozio is not active.");
-
-        // Delegate to the original method.
-        return [self yozioPlugin_application:application didFinishLaunchingWithOptions:launchOptions];
-    }
-
-    // Now parse config.xml.
-    [configParser setDelegate:((id < NSXMLParserDelegate >)configParserDelegate)];
-    [configParser parse];
-
-    // Grab the plugin specific preference values from config.xml.
-    NSString *appKey = [configParserDelegate.settings objectForKey:@"yozioplugin_appkey"];
-    NSString *secretKey = [configParserDelegate.settings objectForKey:@"yozioplugin_secretkey"];
+    // Grab the plugin specific preference values from the plist.
+    NSString *appKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"YozioAppKey"];
+    NSString *secretKey = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"YozioSecretKey"];
 
     // Ensure we have both keys before continuing, or Yozio's SDK will crash.
     if (!appKey || !secretKey) {

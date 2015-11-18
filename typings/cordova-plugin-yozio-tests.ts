@@ -1,16 +1,16 @@
 /// <reference path="cordova-plugin-yozio.d.ts" />
 
 var installMetadata: YozioPlugin.InstallMetadata = {
-	isNewInstall: true,
-	timestamp: 1447869962116,
-	yozio_device_id: "00000000-0000-0000-0000-000000000000"
+    isNewInstall: true,
+    timestamp: 1447869962116,
+    yozio_device_id: "00000000-0000-0000-0000-000000000000"
 };
 
 var installMetadata2: YozioPlugin.InstallMetadata = {
-	isNewInstall: true,
-	timestamp: 1447869962116,
-	yozio_device_id: "00000000-0000-0000-0000-000000000000",
-	yozio_probability: 0.5
+    isNewInstall: true,
+    timestamp: 1447869962116,
+    yozio_device_id: "00000000-0000-0000-0000-000000000000",
+    yozio_probability: 0.5
 };
 
 YozioPlugin.getIsNewInstall();

@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-yozio"
-        version="0.0.3">
+        version="0.0.4">
 
     <name>Yozio</name>
 
@@ -11,6 +11,9 @@
     </description>
 
     <license>MIT</license>
+
+    <preference name="YOZIO_APP_KEY" />
+    <preference name="YOZIO_SECRET_KEY" />
 
     <!-- JavaScript Interface -->
     <js-module src="www/yozio-plugin.js" name="YozioPlugin">
@@ -45,6 +48,14 @@
                 <param name="ios-package" value="YozioPlugin" />
             </feature>
             <access origin="https://*.yozio.com" />
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="YozioAppKey">
+            <string>$YOZIO_APP_KEY</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="YozioSecretKey">
+            <string>$YOZIO_SECRET_KEY</string>
         </config-file>
 
         <source-file src="libs/ios/Resources/YozioDefaults.plist" />

@@ -21,7 +21,7 @@ var YozioPlugin = {};
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.getIsNewInstall = function getIsNewInstall(successCallback, failureCallback) {
-	exec(successCallback, failureCallback, PLUGIN_ID, "isNewInstall", []);
+    exec(successCallback, failureCallback, PLUGIN_ID, "isNewInstall", []);
 };
 
 /**
@@ -32,7 +32,7 @@ YozioPlugin.getIsNewInstall = function getIsNewInstall(successCallback, failureC
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.getInstallMetadata = function getInstallMetadata(successCallback, failureCallback) {
-	exec(successCallback, failureCallback, PLUGIN_ID, "getInstallMetadata", []);
+    exec(successCallback, failureCallback, PLUGIN_ID, "getInstallMetadata", []);
 };
 
 /**
@@ -42,7 +42,7 @@ YozioPlugin.getInstallMetadata = function getInstallMetadata(successCallback, fa
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.getLastDeeplinkMetadata = function getLastDeeplinkMetadata(successCallback, failureCallback) {
-	exec(successCallback, failureCallback, PLUGIN_ID, "getLastDeeplinkMetadata", []);
+    exec(successCallback, failureCallback, PLUGIN_ID, "getLastDeeplinkMetadata", []);
 };
 
 /**
@@ -52,7 +52,7 @@ YozioPlugin.getLastDeeplinkMetadata = function getLastDeeplinkMetadata(successCa
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.trackSignup = function trackSignup(successCallback, failureCallback) {
-	exec(successCallback, failureCallback, PLUGIN_ID, "trackSignup", []);
+    exec(successCallback, failureCallback, PLUGIN_ID, "trackSignup", []);
 };
 
 /**
@@ -64,13 +64,13 @@ YozioPlugin.trackSignup = function trackSignup(successCallback, failureCallback)
  */
 YozioPlugin.trackPayment = function trackPayment(amount, successCallback, failureCallback) {
 
-	// Do validation before going over the native code bridge.
-	if (typeof(amount) !== "number") {
-		setTimeout(function () { failureCallback("An amount (number) is required."); }, 0);
-		return;
-	}
+    // Do validation before going over the native code bridge.
+    if (typeof(amount) !== "number") {
+        setTimeout(function () { failureCallback("An amount (number) is required."); }, 0);
+        return;
+    }
 
-	exec(successCallback, failureCallback, PLUGIN_ID, "trackPayment", [amount]);
+    exec(successCallback, failureCallback, PLUGIN_ID, "trackPayment", [amount]);
 };
 
 /**
@@ -83,24 +83,24 @@ YozioPlugin.trackPayment = function trackPayment(amount, successCallback, failur
  */
 YozioPlugin.trackEvent = function trackEvent(eventName, value, successCallback, failureCallback) {
 
-	// Do validation before going over the native code bridge.
-	if (typeof(eventName) !== "string") {
-		setTimeout(function () { failureCallback("An event name (string) is required."); }, 0);
-		return;
-	}
+    // Do validation before going over the native code bridge.
+    if (typeof(eventName) !== "string") {
+        setTimeout(function () { failureCallback("An event name (string) is required."); }, 0);
+        return;
+    }
 
-	// If value wasn't provided, default it to zero.
-	if (value == null) {
-		value = 0;
-	}
+    // If value wasn't provided, default it to zero.
+    if (value == null) {
+        value = 0;
+    }
 
-	// Do validation before going over the native code bridge.
-	if (typeof(value) !== "number") {
-		setTimeout(function () { failureCallback("Value must be null or a number."); }, 0);
-		return;
-	}
+    // Do validation before going over the native code bridge.
+    if (typeof(value) !== "number") {
+        setTimeout(function () { failureCallback("Value must be null or a number."); }, 0);
+        return;
+    }
 
-	exec(successCallback, failureCallback, PLUGIN_ID, "trackEvent", [eventName, value]);
+    exec(successCallback, failureCallback, PLUGIN_ID, "trackEvent", [eventName, value]);
 };
 
 module.exports = YozioPlugin;
