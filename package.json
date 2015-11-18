@@ -1,0 +1,27 @@
+{
+  "name": "cordova-plugin-yozio",
+  "version": "0.0.1",
+  "description": "Cordova plugin for the Yozio mobile app tracking platform. https://www.yozio.com",
+  "cordova": {
+    "id": "cordova-plugin-yozio",
+    "platforms": [
+      "android",
+      "ios"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justin-credible/cordova-plugin-yozio"
+  },
+  "keywords": [
+    "cordova",
+    "yozio",
+    "tracking",
+    "tracker",
+    "deep link",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios"
+  ],
+  "license": "MIT"
+}
