@@ -49,7 +49,7 @@ Example Usage:
 
 ## Get Installation Metadata
 
-Used get the metadata from when the application was installed as well as a flag that indicates if the current running instance is a new installation of the app.
+Used get the installation metadata from when the application was installed as well as a flag that indicates if the current running instance is a new installation of the app.
 
 Method Signature:
 
@@ -57,8 +57,8 @@ Method Signature:
 
 Example Usage:
 
-    YozioPlugin.getInstallMetadata(function(metadata) {
-    	console.log("Install Metadata: " + metadata);
+    YozioPlugin.getInstallMetadata(function(installMetadata) {
+    	console.log("Install Metadata: " + installMetadata);
     }
 
 ## Get Deep Link Metadata
@@ -114,9 +114,10 @@ Method Signature:
 Parameters:
 
 * eventName (string): The name of the custom event to track.
-* value (number): The value to track with the event.
+* value (number): The optional value to track with the event.
 
 Example Usage:
 
     YozioPlugin.trackEvent("Coupon Code", 10);
-
+    
+    YozioPlugin.trackEvent("Account Linked");
