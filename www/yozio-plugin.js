@@ -62,6 +62,13 @@ YozioPlugin.trackSignup = function trackSignup(successCallback, failureCallback)
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.trackPayment = function trackPayment(amount, successCallback, failureCallback) {
+
+	// Do validation before going over the native code bridge.
+	if (typeof(amount) !== "number") {
+		setTimeout(function () { failureCallback("An amount (number) is required."); }, 0);
+		return;
+	}
+
 	exec(successCallback, failureCallback, PLUGIN_ID, "trackPayment", [amount]);
 };
 
@@ -74,6 +81,24 @@ YozioPlugin.trackPayment = function trackPayment(amount, successCallback, failur
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.trackEvent = function trackEvent(eventName, value, successCallback, failureCallback) {
+
+	// Do validation before going over the native code bridge.
+	if (typeof(eventName) !== "string") {
+		setTimeout(function () { failureCallback("An event name (string) is required."); }, 0);
+		return;
+	}
+
+	// If value wasn't provided, default it to zero.
+	if (value == null) {
+		value = 0;
+	}
+
+	// Do validation before going over the native code bridge.
+	if (typeof(value) !== "number") {
+		setTimeout(function () { failureCallback("Value must be null or a number."); }, 0);
+		return;
+	}
+
 	exec(successCallback, failureCallback, PLUGIN_ID, "trackEvent", [eventName, value]);
 };
 

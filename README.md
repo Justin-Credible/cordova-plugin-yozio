@@ -21,7 +21,7 @@ Alternatively, you can install the latest version of the plugin directly from gi
 Next, you'll need to add your app and secret keys to the `config.xml` file. You can obtain your keys from the Yozio console's SDK page.
 
     <preference name="YozioPlugin_AppKey" value="00000000-0000-0000-0000-000000000000"/>
-    <preference name="YozioPlugin_AppSecret" value="00000000-0000-0000-0000-000000000000"/>
+    <preference name="YozioPlugin_SecretKey" value="00000000-0000-0000-0000-000000000000"/>
 
 # Usage
 

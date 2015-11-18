@@ -16,55 +16,50 @@
 
 +(void)swizzleMethod:(NSString*)originalSelectorString withMethod:(NSString*)swizzledSelectorString andDefaultMethod:(NSString*)defaultSelectorString forClass:(Class)class {
 
-    static dispatch_once_t onceToken;
+    SEL originalSelector = NSSelectorFromString(originalSelectorString);
+    SEL swizzledSelector = NSSelectorFromString(swizzledSelectorString);
+    SEL defaultSelector = NSSelectorFromString(defaultSelectorString);
 
-    dispatch_once(&onceToken, ^{
+    Method originalMethod = class_getInstanceMethod(class, originalSelector);
+    Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+    Method defaultMethod = class_getInstanceMethod(class, defaultSelector);
 
-        SEL originalSelector = NSSelectorFromString(originalSelectorString);// @selector(presentViewController:animated:completion:);
-        SEL swizzledSelector = NSSelectorFromString(swizzledSelectorString);//@selector(fixSelectPopover_presentViewController:animated:completion:);
-        SEL defaultSelector = NSSelectorFromString(defaultSelectorString);//@selector(defaultfixSelectPopover_presentViewController:animated:completion:);
+    // First try to add the our method as the original.  Returns YES if it didn't already exist and was added.
+    BOOL didAddMethod =
+    class_addMethod(class,
+                    originalSelector,
+                    method_getImplementation(swizzledMethod),
+                    method_getTypeEncoding(swizzledMethod));
+
+    // If we added it, then replace our call with the original name.
+    if (didAddMethod) {
         
-        Method originalMethod = class_getInstanceMethod(class, originalSelector);
-        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
-        Method defaultMethod = class_getInstanceMethod(class, defaultSelector);
-
-        // First try to add the our method as the original.  Returns YES if it didn't already exist and was added.
-        BOOL didAddMethod =
-        class_addMethod(class,
-                        originalSelector,
-                        method_getImplementation(swizzledMethod),
-                        method_getTypeEncoding(swizzledMethod));
-
-        // If we added it, then replace our call with the original name.
-        if (didAddMethod) {
+        // There might not have been an original method, its optional on the delegate.
+        if (originalMethod) {
             
-            // There might not have been an original method, its optional on the delegate.
-            if (originalMethod) {
-                
-                class_replaceMethod(class,
-                                    swizzledSelector,
-                                    method_getImplementation(originalMethod),
-                                    method_getTypeEncoding(originalMethod));
-            }
-            else {
-                // There is no existing method, just swap in our default below.
-                class_replaceMethod(class,
-                                    swizzledSelector,
-                                    method_getImplementation(defaultMethod),
-                                    method_getTypeEncoding(defaultMethod));
-            }
-        } else {
-            
-            // The method was already there, swap methods.
-            method_exchangeImplementations(originalMethod, swizzledMethod);
+            class_replaceMethod(class,
+                                swizzledSelector,
+                                method_getImplementation(originalMethod),
+                                method_getTypeEncoding(originalMethod));
         }
-    });
+        else {
+            // There is no existing method, just swap in our default below.
+            class_replaceMethod(class,
+                                swizzledSelector,
+                                method_getImplementation(defaultMethod),
+                                method_getTypeEncoding(defaultMethod));
+        }
+    } else {
+        
+        // The method was already there, swap methods.
+        method_exchangeImplementations(originalMethod, swizzledMethod);
+    }
 }
 
 #pragma mark Load
 
 +(void)load {
-    
+
     // Here we swizzle all of the AppDelegate methods we need to hook for Yozio's SDK.
 
     [self swizzleMethod:@"application:didFinishLaunchingWithOptions:"
@@ -96,7 +91,7 @@
     // Ensure the config.xml file exists.
     if (![[NSFileManager defaultManager] fileExistsAtPath:path]) {
         NSLog(@"YozioPlugin: Could not locate config.xml to load Yozio keys from; Yozio is not active.");
-        
+
         // Delegate to the original method.
         return [self yozioPlugin_application:application didFinishLaunchingWithOptions:launchOptions];
     }
@@ -108,7 +103,7 @@
     // Ensure we were able to instantiate the XML parser.
     if (configParser == nil) {
         NSLog(@"YozioPlugin: Failed to initialize XML parser; Yozio is not active.");
-        
+
         // Delegate to the original method.
         return [self yozioPlugin_application:application didFinishLaunchingWithOptions:launchOptions];
     }
@@ -124,7 +119,7 @@
     // Ensure we have both keys before continuing, or Yozio's SDK will crash.
     if (!appKey || !secretKey) {
         NSLog(@"YozioPlugin: Could not locate a YozioPlugin_AppKey or YozioPlugin_SecretKey in config.xml; Yozio is not active.");
-        
+
         // Delegate to the original method.
         return [self yozioPlugin_application:application didFinishLaunchingWithOptions:launchOptions];
     }
@@ -187,7 +182,7 @@
 
     // Track the deep link with Yozio.
     [Yozio handleOpenURL: url];
-    
+
     // This is a util function to parse meta data from query string,
     // and it will filter out Yozio internal parameters which key starts with "__y".
     NSDictionary *metaData = [Yozio getMetaDataFromDeeplink:url];

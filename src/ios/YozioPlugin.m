@@ -40,20 +40,20 @@ static BOOL isNewInstall = NO;
 - (void)getInstallMetadata:(CDVInvokedUrlCommand *)command {
 
     // Delegate to the Yozio SDK.
-    NSDictionary* metaData = [Yozio getLastDeeplinkMetaDataAsHash];
+    NSDictionary* metaData = [Yozio getNewInstallMetaDataAsHash];
 
     // Add a "isNewInstall" flag to the metadata for convenience so only one call has to
     // be made to get both the metadata and this flag.
     NSMutableDictionary *extendedMetaData = [metaData mutableCopy];
     [extendedMetaData setValue:@(isNewInstall) forKey:@"isNewInstall"];
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:metaData];
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:extendedMetaData];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)getLastDeeplinkMetadata:(CDVInvokedUrlCommand *)command {
 
-    NSDictionary* metaData = [Yozio getNewInstallMetaDataAsHash];
+    NSDictionary* metaData = [Yozio getLastDeeplinkMetaDataAsHash];
 
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:metaData];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

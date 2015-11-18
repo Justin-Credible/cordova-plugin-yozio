@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-yozio"
-        version="0.0.1">
+        version="0.0.2">
 
     <name>Yozio</name>
 
@@ -57,7 +57,7 @@
         <header-file src="libs/ios/Yozio.h" />
         <source-file src="libs/ios/Frameworks/libYozio.a" framework="true" />
 
-        <framework src="SafariServices.framework" />
+        <framework src="SafariServices.framework" weak="true" />
 
     </platform>
 
