@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-yozio"
-        version="0.0.4">
+        version="0.0.5">
 
     <name>Yozio</name>
 
@@ -12,6 +12,7 @@
 
     <license>MIT</license>
 
+    <preference name="URL_SCHEME" />
     <preference name="YOZIO_APP_KEY" />
     <preference name="YOZIO_SECRET_KEY" />
 
@@ -21,24 +22,59 @@
     </js-module>
 
     <!-- Android Configuration -->
-    <!--
     <platform name="android">
 
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="YozioPlugin">
-                <param name="android-package" value="com.yozio.YozioPlugin" />
+                <param name="android-package" value="com.yozio.cordova.YozioPlugin" />
+                <param name="onload" value="true" />
             </feature>
             <access origin="https://*.yozio.com" />
         </config-file>
 
-        <source-file src="src/android/yozio.java" target-dir="src/com/yozio" />
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.INTERNET" />
+        </config-file>
 
-        <source-file src="src/android/YozioPlugin.java" target-dir="src/com/yozio" />
+        <config-file target="AndroidManifest.xml" parent="application">
+            <meta-data android:name="YozioAppKey" android:value="$YOZIO_APP_KEY" />
+            <meta-data android:name="YozioSecretKey" android:value="$YOZIO_SECRET_KEY" />
+            <meta-data android:name="YozioNewInstallMetaDataCallback" android:value="com.yozio.cordova.YozioNewInstallMetaDataCallback" />
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="application">
+            <receiver android:name="com.yozio.cordova.MasterInstallReferrerReceiver" android:exported="true">
+            <intent-filter>
+                <action android:name="com.android.vending.INSTALL_REFERRER" />
+            </intent-filter>
+            </receiver>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*/application/activity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="$URL_SCHEME" android:host="yozio" android:path="/" />
+            </intent-filter>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/*/application/activity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="deeplink.yozio.com" android:path="/$YOZIO_APP_KEY" />
+            </intent-filter>
+        </config-file>
+
+        <source-file src="src/android/com/yozio/cordova/YozioPlugin.java" target-dir="src/com/yozio/cordova" />
+        <source-file src="src/android/com/yozio/cordova/MasterInstallReferrerReceiver.java" target-dir="src/com/yozio/cordova" />
+        <source-file src="src/android/com/yozio/cordova/YozioNewInstallMetaDataCallback.java" target-dir="src/com/yozio/cordova" />
 
         <source-file src="libs/android/yozio-android-sdk.jar" target-dir="libs" />
 
     </platform>
-    -->
 
     <!-- iOS Configuration -->
     <platform name="ios">
@@ -56,6 +92,17 @@
 
         <config-file target="*-Info.plist" parent="YozioSecretKey">
             <string>$YOZIO_SECRET_KEY</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="CFBundleURLTypes">
+            <array>
+                <dict>
+                    <key>CFBundleURLSchemes</key>
+                    <array>
+                        <string>$URL_SCHEME</string>
+                    </array>
+                </dict>
+            </array>
         </config-file>
 
         <source-file src="libs/ios/Resources/YozioDefaults.plist" />

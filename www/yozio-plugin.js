@@ -21,7 +21,7 @@ var YozioPlugin = {};
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.getIsNewInstall = function getIsNewInstall(successCallback, failureCallback) {
-    exec(successCallback, failureCallback, PLUGIN_ID, "isNewInstall", []);
+    exec(successCallback, failureCallback, PLUGIN_ID, "getIsNewInstall", []);
 };
 
 /**

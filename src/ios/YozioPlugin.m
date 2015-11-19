@@ -32,7 +32,7 @@ static BOOL isNewInstall = NO;
 
 #pragma mark - Cordova commands
 
-- (void)isNewInstall:(CDVInvokedUrlCommand *)command {
+- (void)getIsNewInstall:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isNewInstall];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
