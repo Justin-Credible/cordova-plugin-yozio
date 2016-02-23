@@ -46,6 +46,20 @@ Example Usage:
         console.log("IsNewInstall: " + isNewInstall);
     }
 
+## Check If Was Opened Via Deep Link
+
+Used to check to see if the current running instance was launched via a deep link.
+
+Method Signature:
+
+`getWasOpenedViaDeepLink(successCallback, failureCallback)`
+
+Example Usage:
+
+    YozioPlugin.getWasOpenedViaDeepLink(function(wasOpenedViaDeepLink) {
+        console.log("WasOpenedViaDeepLink: " + wasOpenedViaDeepLink);
+    }
+
 ## Get Installation Metadata
 
 Used get the installation metadata from when the application was installed as well as a flag that indicates if the current running instance is a new installation of the app.

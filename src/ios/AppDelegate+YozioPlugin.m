@@ -151,8 +151,10 @@
                      annotation:(id)annotation {
 
     // Track the deep link with Yozio.
-    [Yozio handleOpenURL: url];
+    int result = [Yozio handleOpenURL: url];
 
+    [YozioPlugin setWasOpenedViaDeepLink: result == YOZIO_OPEN_URL_TYPE_YOZIO_DEEPLINK];
+    
     // This is a util function to parse meta data from query string,
     // and it will filter out Yozio internal parameters which key starts with "__y".
     NSDictionary *metaData = [Yozio getMetaDataFromDeeplink:url];

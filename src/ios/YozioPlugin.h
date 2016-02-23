@@ -9,11 +9,16 @@
 #import "YozioPlugin.h"
 
 @interface YozioPlugin : CDVPlugin
+
 + (void)setIsNewInstall:(BOOL)isNewInstall;
-- (void)isNewInstall:(CDVInvokedUrlCommand *)command;
++ (void)setWasOpenedViaDeepLink:(BOOL)isNewInstall;
+
+- (void)getIsNewInstall:(CDVInvokedUrlCommand *)command;
+- (void)getWasOpenedViaDeepLink:(CDVInvokedUrlCommand *)command;
 - (void)getInstallMetadata:(CDVInvokedUrlCommand *)command;
 - (void)getLastDeeplinkMetadata:(CDVInvokedUrlCommand *)command;
 - (void)trackSignup:(CDVInvokedUrlCommand *)command;
 - (void)trackPayment:(CDVInvokedUrlCommand *)command;
 - (void)trackEvent:(CDVInvokedUrlCommand *)command;
+
 @end

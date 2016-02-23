@@ -16,6 +16,14 @@ declare module YozioPlugin {
         getIsNewInstall(successCallback?: (isNewInstall: boolean) => void, failureCallback?: (error: string) => void): void;
 
         /**
+         * Used to check to see if the current running instance was launched via a deep link.
+         * 
+         * @param successCallback The success callback for this asynchronous function; receives a boolean flag.
+         * @param failureCallback The failure callback for this asynchronous function; receives an error string.
+         */
+        getWasOpenedViaDeepLink(successCallback?: (wasOpenedViaDeepLink: boolean) => void, failureCallback?: (error: string) => void): void;
+
+        /**
          * Used get the installation metadata from when the application was installed as well as a
          * flag that indicates if the current running instance is a new installation of the app.
          * 
