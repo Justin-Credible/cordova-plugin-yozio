@@ -4,7 +4,7 @@ This is a [Cordova](http://cordova.apache.org/) plugin for the Yozio mobile app 
 
 You can find out more about Yozio here: [https://www.yozio.com](https://www.yozio.com).
 
-This version of the plugin uses versions `2.0.1` (iOS) and `1.1.13` (Android) of the Yozio SDK. Documentation for Yozio SDKs can be found [here for iOS](https://docs.yozio.com/documents/base-sdk-setup--2) and [here for Android](https://docs.yozio.com/documents/base-sdk-setup).
+This version of the plugin uses versions `2.1.0` (iOS) and `1.1.13` (Android) of the Yozio SDK. Documentation for Yozio SDKs can be found [here for iOS](https://docs.yozio.com/documents/base-sdk-setup--2) and [here for Android](https://docs.yozio.com/documents/base-sdk-setup).
 
 **This version of the plugin should be considered beta and has not yet been tested in all scenarios.**
 

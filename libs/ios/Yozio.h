@@ -54,6 +54,18 @@
  */
 + (NSDictionary *)getMetaDataFromDeeplink:(NSURL *)url;
 
+/** 
+ * Populates dictionary with meta data received from Universal Link url.
+ *
+ * @param url - The url from which the app was opened
+ * @param associatedDomains - The array of domains that are configured by Yozio to use Universal Link eg:(r.yoz.io, r.custom_domain.com)
+ * @return Dictionary of Metadata passed by Universal Link url.
+ *
+ */
++ (void) handleDeeplinkURL:(NSURL *)url
+     withAssociatedDomains:(NSArray *) associatedDomains
+  deeplinkMetaDataCallback:(void (^)(NSDictionary *))callback;
+
 /**
  * When the a new install is detected, Yozio will try to find the Yozio short link user clicked
  * before he/she downloaded app. If the link has any meta data attached, Yozio SDK will
