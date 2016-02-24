@@ -122,14 +122,37 @@
 
     if ([NSUserActivityTypeBrowsingWeb isEqualToString: userActivity.activityType]) {
 
-        // Track the deep link with Yozio.
-        [Yozio handleOpenURL: userActivity.webpageURL];
+        NSString *enableUniversalLinksPreference = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"YozioIosEnableUniversalLinks"];
 
-        // This is a util function to parse meta data from query string,
-        // and it will filter out Yozio internal parameters which key starts with "__y".
-        NSDictionary *metaData = [Yozio getMetaDataFromDeeplink:userActivity.webpageURL];
+        bool enableUniversalLinks = enableUniversalLinksPreference
+                && [enableUniversalLinksPreference compare:@"YES" options:NSCaseInsensitiveSearch] == NSOrderedSame;
+        
+        if (enableUniversalLinks) {
 
-        NSLog(@"YozioPlugin: Obtained metadata from a deep link: %@", metaData);
+            NSString *universalLinkDomain = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"YozioIosUniversalLinkDomain"];
+
+            // Initialization with metadata callback
+            [Yozio handleDeeplinkURL:userActivity.webpageURL
+               withAssociatedDomains: universalLinkDomain ? @[universalLinkDomain] : @[@"r.yoz.io"]
+            deeplinkMetaDataCallback:^(NSDictionary *metaData)
+                {
+                    NSLog(@"YozioPlugin: Obtained metadata from a deep link: %@", metaData);
+                }];
+
+            [YozioPlugin setWasOpenedViaDeepLink: YES];
+        }
+        else {
+            // Track the deep link with Yozio.
+            int result = [Yozio handleOpenURL: userActivity.webpageURL];
+
+            [YozioPlugin setWasOpenedViaDeepLink: result == YOZIO_OPEN_URL_TYPE_YOZIO_DEEPLINK];
+
+            // This is a util function to parse meta data from query string,
+            // and it will filter out Yozio internal parameters which key starts with "__y".
+            NSDictionary *metaData = [Yozio getMetaDataFromDeeplink:userActivity.webpageURL];
+
+            NSLog(@"YozioPlugin: Obtained metadata from a deep link: %@", metaData);
+        }
     }
 
     // Delegate to the original method.

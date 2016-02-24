@@ -6,21 +6,23 @@ You can find out more about Yozio here: [https://www.yozio.com](https://www.yozi
 
 This version of the plugin uses versions `2.1.0` (iOS) and `1.1.13` (Android) of the Yozio SDK. Documentation for Yozio SDKs can be found [here for iOS](https://docs.yozio.com/documents/base-sdk-setup--2) and [here for Android](https://docs.yozio.com/documents/base-sdk-setup).
 
-**This version of the plugin should be considered beta and has not yet been tested in all scenarios.**
-
 # Install
 
-To add the plugin to your Cordova project, simply add the plugin from the npm registry. You'll need to specify your app and secret keys via the variables flags. You can obtain your keys from the Yozio console's SDK page. You'll also need to specify the URL scheme used for deep linking to your app.
+To add the plugin to your Cordova project, simply add the plugin from the npm registry. You'll need to specify the following parameters:
 
-    cordova plugin add cordova-plugin-yozio --variable YOZIO_APP_KEY=app_key_here --variable YOZIO_APP_SECRET=secret_key_here --variable URL_SCHEME=your_scheme
+* `YOZIO_APP_KEY` - Your Yozio application key (available from the Yozio console)
+* `YOZIO_APP_SECRET` - Your Yozio secret key (available from the Yozio console)
+* `URL_SCHEME` - Your application's custom URL scheme (enter `appname` to use `appname://...`)
+* `YOZIO_ENABLE_IOS_UNIVERSAL_LINKS` Indicates if you are using iOS Universal Links (should be `YES` or `NO`)
+* `YOZIO_IOS_UNIVERSAL_LINK_DOMAIN` The custom domain you are using with iOS Universal Links
 
-For an app with all zeros as the keys and a URL deep link scheme of `yourapp://...` the command would look like this:
+For example, an app with all an app key of `123`, secret key of `456`, a link scheme of `appname://...` and iOS universal link support with the custom domain `r.company.com`, the command would look like this:
 
-    cordova plugin add cordova-plugin-yozio --variable YOZIO_APP_KEY=00000000-0000-0000-0000-000000000000 --variable YOZIO_APP_SECRET=00000000-0000-0000-0000-000000000000 --variable URL_SCHEME=yourapp
+    cordova plugin add cordova-plugin-yozio --variable YOZIO_APP_KEY=123 --variable YOZIO_APP_SECRET=456 --variable URL_SCHEME=appname --variable=YOZIO_ENABLE_IOS_UNIVERSAL_LINKS=YES --variable=YOZIO_IOS_UNIVERSAL_LINK_DOMAIN=r.company.com
 
-Alternatively, you can install the latest version of the plugin directly from git:
+> Note: Even if you are not using iOS universal links, the parameters still need to be specified. You can use `YOZIO_ENABLE_IOS_UNIVERSAL_LINKS=NO` and `YOZIO_IOS_UNIVERSAL_LINK_DOMAIN=r.yoz.io` in this case.
 
-    cordova plugin add https://github.com/Justin-Credible/cordova-plugin-yozio --variable YOZIO_APP_KEY=app_key_here --variable YOZIO_APP_SECRET=secret_key_here --variable URL_SCHEME=your_scheme
+Alternatively, you can install plugin directly from git by replacing the plugin ID with the git URL: `https://github.com/Justin-Credible/cordova-plugin-yozio@1.0.0`
 
 # Usage
 
