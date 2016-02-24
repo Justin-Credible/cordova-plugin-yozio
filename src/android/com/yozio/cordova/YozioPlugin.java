@@ -17,8 +17,16 @@ public final class YozioPlugin extends CordovaPlugin {
         isNewInstall = value;
     }
 
+    private static boolean wasOpenedViaDeepLink = false;
+
+    public static void setWasOpenedViaDeepLink(boolean value) {
+        wasOpenedViaDeepLink = value;
+    }
+
     @Override
     protected void pluginInitialize() {
+        Yozio.YOZIO_ENABLE_LOGGING = true;
+        Yozio.YOZIO_READ_TIMEOUT = 7000;
         Yozio.initialize(cordova.getActivity());
     }
 
@@ -35,6 +43,21 @@ public final class YozioPlugin extends CordovaPlugin {
                 public void run() {
                     try {
                         YozioPlugin.this.getIsNewInstall(callbackContext);
+                    }
+                    catch (Exception exception) {
+                        callbackContext.error("YozioPlugin uncaught exception: " + exception.getMessage());
+                    }
+                }
+            });
+
+            return true;
+        }
+        else if (action.equals("getWasOpenedViaDeepLink")) {
+
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    try {
+                        YozioPlugin.this.getWasOpenedViaDeepLink(callbackContext);
                     }
                     catch (Exception exception) {
                         callbackContext.error("YozioPlugin uncaught exception: " + exception.getMessage());
@@ -126,7 +149,16 @@ public final class YozioPlugin extends CordovaPlugin {
     }
 
     private void getIsNewInstall(final CallbackContext callbackContext) throws JSONException {
-         callbackContext.success(new JSONObject(isNewInstall ? "true" : "")); //TODO this should return an actual boolean type.
+        callbackContext.success(Boolean.toString(isNewInstall));
+    }
+
+    private void getWasOpenedViaDeepLink(final CallbackContext callbackContext) throws JSONException {
+
+        // TODO: Need to determine if the application was actually launched with a deep link, perhaps by checking the intent?
+        //HashMap<String, Object> metaData1 = Yozio.getMetaData(cordova.getActivity().getIntent());
+        //HashMap<String, Object> metadata2 = Yozio.getInstallMetaDataAsHash(cordova.getActivity().getApplicationContext());
+
+        callbackContext.success(Boolean.toString(wasOpenedViaDeepLink));
     }
 
     private void getInstallMetadata(final CallbackContext callbackContext) throws JSONException {

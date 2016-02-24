@@ -38,7 +38,7 @@ declare module YozioPlugin {
          * @param successCallback The success callback for this asynchronous function; receives a metadata dictionary.
          * @param failureCallback The failure callback for this asynchronous function; receives an error string.
          */
-        getLastDeeplinkMetadata(successCallback?: (metdata: { [id: string]: string }) => void, failureCallback?: (error: string) => void): void;
+        getLastDeeplinkMetadata(successCallback?: (metadata: { [id: string]: string }) => void, failureCallback?: (error: string) => void): void;
 
         /**
          * Used to track a user sign up event.
