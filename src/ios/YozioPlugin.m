@@ -13,6 +13,9 @@
 + (BOOL)isNewInstall;
 + (void)setIsNewInstall:(BOOL)isNewInstall;
 
++ (BOOL)wasOpenedViaDeepLink;
++ (void)setWasOpenedViaDeepLink:(BOOL)openedViaDeepLink;
+
 @end
 
 @implementation YozioPlugin
@@ -30,10 +33,46 @@ static BOOL isNewInstall = NO;
     isNewInstall = newInstall;
 }
 
+static BOOL wasOpenedViaDeepLink = NO;
+
++ (BOOL)wasOpenedViaDeepLink;
+{
+    return wasOpenedViaDeepLink;
+}
+
++ (void)setWasOpenedViaDeepLink:(BOOL)openedViaDeepLink {
+    wasOpenedViaDeepLink = openedViaDeepLink;
+}
+
+#pragma mark - Plugin Initialization
+
+- (void)pluginInitialize {
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(application_enterBackground)
+                                                 name:UIApplicationDidEnterBackgroundNotification
+                                               object:nil];
+}
+
+#pragma mark - Notifications
+
+- (void)application_enterBackground {
+
+    // Once the application has been backgrounded, set the flag to false. This allows
+    // us to determine if the application was launched again via a deep link on the
+    // next app resume.
+    wasOpenedViaDeepLink = false;
+}
+
 #pragma mark - Cordova commands
 
 - (void)getIsNewInstall:(CDVInvokedUrlCommand *)command {
     CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:isNewInstall];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)getWasOpenedViaDeepLink:(CDVInvokedUrlCommand *)command {
+    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:wasOpenedViaDeepLink];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 

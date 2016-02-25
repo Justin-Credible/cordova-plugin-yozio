@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="cordova-plugin-yozio"
-        version="0.0.5">
+        version="1.0.0">
 
     <name>Yozio</name>
 
@@ -15,6 +15,8 @@
     <preference name="URL_SCHEME" />
     <preference name="YOZIO_APP_KEY" />
     <preference name="YOZIO_SECRET_KEY" />
+    <preference name="YOZIO_IOS_ENABLE_UNIVERSAL_LINKS" />
+    <preference name="YOZIO_IOS_UNIVERSAL_LINK_DOMAIN" />
 
     <!-- JavaScript Interface -->
     <js-module src="www/yozio-plugin.js" name="YozioPlugin">
@@ -94,6 +96,15 @@
             <string>$YOZIO_SECRET_KEY</string>
         </config-file>
 
+        <!-- TODO: Type should be boolean here, but it breaks Cordova build scripts. -->
+        <config-file target="*-Info.plist" parent="YozioIosEnableUniversalLinks">
+            <string>$YOZIO_IOS_ENABLE_UNIVERSAL_LINKS</string>
+        </config-file>
+
+        <config-file target="*-Info.plist" parent="YozioIosUniversalLinkDomain">
+            <string>$YOZIO_IOS_UNIVERSAL_LINK_DOMAIN</string>
+        </config-file>
+
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
             <array>
                 <dict>
@@ -116,6 +127,11 @@
         <source-file src="libs/ios/Frameworks/libYozio.a" framework="true" />
 
         <framework src="SafariServices.framework" weak="true" />
+
+        <resource-file src="src/ios/yozio-plugin.entitlements" />
+
+        <hook type="after_plugin_install" src="hooks/ios-configure-entitlements.js" />
+        <hook type="before_plugin_uninstall" src="hooks/ios-configure-entitlements.js" />
 
     </platform>
 

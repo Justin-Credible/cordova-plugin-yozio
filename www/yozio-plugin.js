@@ -21,7 +21,45 @@ var YozioPlugin = {};
  * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
  */
 YozioPlugin.getIsNewInstall = function getIsNewInstall(successCallback, failureCallback) {
-    exec(successCallback, failureCallback, PLUGIN_ID, "getIsNewInstall", []);
+
+    // Ensure that boolean values as strings are actually returned as booleans.
+    var successCallbackProxy = function (result) {
+        if (result === "true") {
+            successCallback(true);
+        }
+        else if (result === "false") {
+            successCallback(false);
+        }
+        else {
+            successCallback(result);
+        }
+    };
+
+    exec(successCallbackProxy, failureCallback, PLUGIN_ID, "getIsNewInstall", []);
+};
+
+/**
+ * Used to check to see if the current running instance was launched via a deep link.
+ * 
+ * @param [function] successCallback - The success callback for this asynchronous function; receives a boolean flag.
+ * @param [function] failureCallback - The failure callback for this asynchronous function; receives an error string.
+ */
+YozioPlugin.getWasOpenedViaDeepLink = function getWasOpenedViaDeepLink(successCallback, failureCallback) {
+
+    // Ensure that boolean values as strings are actually returned as booleans.
+    var successCallbackProxy = function (result) {
+        if (result === "true") {
+            successCallback(true);
+        }
+        else if (result === "false") {
+            successCallback(false);
+        }
+        else {
+            successCallback(result);
+        }
+    };
+
+    exec(successCallbackProxy, failureCallback, PLUGIN_ID, "getWasOpenedViaDeepLink", []);
 };
 
 /**

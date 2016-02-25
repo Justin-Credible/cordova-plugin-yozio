@@ -1,5 +1,7 @@
 package com.yozio.cordova;
 
+import android.content.Intent;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
@@ -17,9 +19,27 @@ public final class YozioPlugin extends CordovaPlugin {
         isNewInstall = value;
     }
 
+    private static boolean wasOpenedViaDeepLink = false;
+
     @Override
     protected void pluginInitialize() {
+        Yozio.YOZIO_ENABLE_LOGGING = true;
+        Yozio.YOZIO_READ_TIMEOUT = 7000;
         Yozio.initialize(cordova.getActivity());
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        HashMap<String, Object> deepLinkMetadata = Yozio.getMetaData(intent);
+        
+        wasOpenedViaDeepLink = deepLinkMetadata != null && deepLinkMetadata.size() > 0;
+    }
+
+    @Override
+    public void onPause(boolean multitasking) {
+        wasOpenedViaDeepLink = false;
     }
 
     @Override
@@ -35,6 +55,21 @@ public final class YozioPlugin extends CordovaPlugin {
                 public void run() {
                     try {
                         YozioPlugin.this.getIsNewInstall(callbackContext);
+                    }
+                    catch (Exception exception) {
+                        callbackContext.error("YozioPlugin uncaught exception: " + exception.getMessage());
+                    }
+                }
+            });
+
+            return true;
+        }
+        else if (action.equals("getWasOpenedViaDeepLink")) {
+
+            cordova.getThreadPool().execute(new Runnable() {
+                public void run() {
+                    try {
+                        YozioPlugin.this.getWasOpenedViaDeepLink(callbackContext);
                     }
                     catch (Exception exception) {
                         callbackContext.error("YozioPlugin uncaught exception: " + exception.getMessage());
@@ -126,7 +161,11 @@ public final class YozioPlugin extends CordovaPlugin {
     }
 
     private void getIsNewInstall(final CallbackContext callbackContext) throws JSONException {
-         callbackContext.success(new JSONObject(isNewInstall ? "true" : "")); //TODO this should return an actual boolean type.
+        callbackContext.success(Boolean.toString(isNewInstall));
+    }
+
+    private void getWasOpenedViaDeepLink(final CallbackContext callbackContext) throws JSONException {
+        callbackContext.success(Boolean.toString(wasOpenedViaDeepLink));
     }
 
     private void getInstallMetadata(final CallbackContext callbackContext) throws JSONException {
