@@ -1,5 +1,7 @@
 package com.yozio.cordova;
 
+import android.content.Intent;
+
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 import org.json.JSONArray;
@@ -19,15 +21,25 @@ public final class YozioPlugin extends CordovaPlugin {
 
     private static boolean wasOpenedViaDeepLink = false;
 
-    public static void setWasOpenedViaDeepLink(boolean value) {
-        wasOpenedViaDeepLink = value;
-    }
-
     @Override
     protected void pluginInitialize() {
         Yozio.YOZIO_ENABLE_LOGGING = true;
         Yozio.YOZIO_READ_TIMEOUT = 7000;
         Yozio.initialize(cordova.getActivity());
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        HashMap<String, Object> deepLinkMetadata = Yozio.getMetaData(intent);
+        
+        wasOpenedViaDeepLink = deepLinkMetadata != null && deepLinkMetadata.size() > 0;
+    }
+
+    @Override
+    public void onPause(boolean multitasking) {
+        wasOpenedViaDeepLink = false;
     }
 
     @Override
@@ -153,11 +165,6 @@ public final class YozioPlugin extends CordovaPlugin {
     }
 
     private void getWasOpenedViaDeepLink(final CallbackContext callbackContext) throws JSONException {
-
-        // TODO: Need to determine if the application was actually launched with a deep link, perhaps by checking the intent?
-        //HashMap<String, Object> metaData1 = Yozio.getMetaData(cordova.getActivity().getIntent());
-        //HashMap<String, Object> metadata2 = Yozio.getInstallMetaDataAsHash(cordova.getActivity().getApplicationContext());
-
         callbackContext.success(Boolean.toString(wasOpenedViaDeepLink));
     }
 
