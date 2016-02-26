@@ -23,8 +23,14 @@ public final class YozioPlugin extends CordovaPlugin {
 
     @Override
     protected void pluginInitialize() {
+
+        // Set the flag so we know that the most recent launch was via a deep link.
+        HashMap<String, Object> deepLinkMetadata = Yozio.getMetaData(cordova.getActivity().getIntent());
+        wasOpenedViaDeepLink = deepLinkMetadata != null && deepLinkMetadata.size() > 0;
+
         Yozio.YOZIO_ENABLE_LOGGING = true;
         Yozio.YOZIO_READ_TIMEOUT = 7000;
+
         Yozio.initialize(cordova.getActivity());
     }
 
@@ -32,9 +38,15 @@ public final class YozioPlugin extends CordovaPlugin {
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
+        // Set the flag so we know that the most recent launch was via a deep link.
         HashMap<String, Object> deepLinkMetadata = Yozio.getMetaData(intent);
-        
         wasOpenedViaDeepLink = deepLinkMetadata != null && deepLinkMetadata.size() > 0;
+
+        // We re-initialize here after explicitly setting the intent because Yozio's SDK is looking
+        // for deep link metadata on the intent in the initialize call (see handleYozioDeeplink).
+        // This allows a deep link launch into a backgrounded app to persist and track the metadata.
+        cordova.getActivity().setIntent(intent);
+        Yozio.initialize(cordova.getActivity());
     }
 
     @Override
