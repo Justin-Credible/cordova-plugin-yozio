@@ -102,7 +102,7 @@ module.exports = function (ctx) {
             fs.writeFileSync(entitlementsFilePath, contents, "utf8");
 
             // Add the entitlements file reference to the project file.
-            console.log("Adding reference to entitlements file " + entitlementsFile);
+            console.log("Adding reference to entitlements file: " + entitlementsFilePath);
             setbuildSettingsProp(buildConfig, projName, CODE_SIGN_ENTITLEMENTS, entitlementsFile);
 
         } else { // uninstall
