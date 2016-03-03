@@ -98,7 +98,7 @@ module.exports = function (ctx) {
 
             // Perform a replacement of the variable in the entitlements file.
             var contents = fs.readFileSync(entitlementsFilePath, "utf-8");
-            contents = contents.replace("$YOZIO_IOS_UNIVERSAL_LINK_DOMAIN", domain);
+            contents = contents.replace("$YOZIO_IOS_UNIVERSAL_LINK_DOMAIN", "applinks:" + domain);
             fs.writeFileSync(entitlementsFilePath, contents, "utf8");
 
             // Add the entitlements file reference to the project file.
