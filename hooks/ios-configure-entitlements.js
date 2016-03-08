@@ -86,19 +86,19 @@ module.exports = function (ctx) {
             var platformConfigPath = path.join(ctx.opts.projectRoot, "platforms", "ios", "ios.json");
 
             var platformConfig = require(platformConfigPath);
-            var domain = platformConfig.installed_plugins[PLUGIN_ID].YOZIO_IOS_UNIVERSAL_LINK_DOMAIN;
+            var domain = platformConfig.installed_plugins[PLUGIN_ID].YOZIO_DOMAIN;
 
             if (!domain) {
                 domain = "r.yoz.io";
             }
 
-            console.log("Adding $YOZIO_IOS_UNIVERSAL_LINK_DOMAIN '" + domain + "' to entitlements file " + entitlementsFilePath);
+            console.log("Adding $YOZIO_DOMAIN '" + domain + "' to entitlements file " + entitlementsFilePath);
 
             var entitlementsFilePath = path.join(ctx.opts.projectRoot, "platforms", "ios", projName, "Resources", "yozio-plugin.entitlements");
 
             // Perform a replacement of the variable in the entitlements file.
             var contents = fs.readFileSync(entitlementsFilePath, "utf-8");
-            contents = contents.replace("$YOZIO_IOS_UNIVERSAL_LINK_DOMAIN", "applinks:" + domain);
+            contents = contents.replace("$YOZIO_DOMAIN", "applinks:" + domain);
             fs.writeFileSync(entitlementsFilePath, contents, "utf8");
 
             // Add the entitlements file reference to the project file.
