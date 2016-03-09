@@ -4,7 +4,7 @@
 <dict>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>$YOZIO_IOS_UNIVERSAL_LINK_DOMAIN</string>
+		<string>$YOZIO_DOMAIN</string>
 	</array>
 </dict>
 </plist>

@@ -16,7 +16,7 @@
     <preference name="YOZIO_APP_KEY" />
     <preference name="YOZIO_SECRET_KEY" />
     <preference name="YOZIO_IOS_ENABLE_UNIVERSAL_LINKS" />
-    <preference name="YOZIO_IOS_UNIVERSAL_LINK_DOMAIN" />
+    <preference name="YOZIO_DOMAIN" />
 
     <!-- JavaScript Interface -->
     <js-module src="www/yozio-plugin.js" name="YozioPlugin">
@@ -66,7 +66,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="deeplink.yozio.com" android:path="/$YOZIO_APP_KEY" />
+                <data android:scheme="https" android:host="$YOZIO_DOMAIN" android:pathPrefix="/$YOZIO_APP_KEY" />
             </intent-filter>
         </config-file>
 
@@ -102,7 +102,7 @@
         </config-file>
 
         <config-file target="*-Info.plist" parent="YozioIosUniversalLinkDomain">
-            <string>$YOZIO_IOS_UNIVERSAL_LINK_DOMAIN</string>
+            <string>$YOZIO_DOMAIN</string>
         </config-file>
 
         <config-file target="*-Info.plist" parent="CFBundleURLTypes">
