@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-yozio",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Cordova plugin for the Yozio mobile app tracking platform. https://www.yozio.com",
   "cordova": {
     "id": "cordova-plugin-yozio",
