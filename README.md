@@ -11,16 +11,16 @@ This version of the plugin uses versions `2.1.0` (iOS) and `1.1.13` (Android) of
 To add the plugin to your Cordova project, simply add the plugin from the npm registry. You'll need to specify the following parameters:
 
 * `YOZIO_APP_KEY` - Your Yozio application key (available from the Yozio console)
-* `YOZIO_APP_SECRET` - Your Yozio secret key (available from the Yozio console)
+* `YOZIO_SECRET_KEY` - Your Yozio secret key (available from the Yozio console)
 * `URL_SCHEME` - Your application's custom URL scheme (enter `appname` to use `appname://...`)
-* `YOZIO_ENABLE_IOS_UNIVERSAL_LINKS` Indicates if you are using iOS Universal Links (should be `YES` or `NO`)
+* `YOZIO_IOS_ENABLE_UNIVERSAL_LINKS` Indicates if you are using iOS Universal Links (should be `YES` or `NO`)
 * `YOZIO_DOMAIN` The domain you are using for your SuperLinks (if you aren't using a custom domain, then specify `r.yoz.io`)
 
 For example, an app with all an app key of `123`, secret key of `456`, a link scheme of `appname://...` and iOS universal link support with the custom domain `r.company.com`, the command would look like this:
 
-    cordova plugin add cordova-plugin-yozio --variable YOZIO_APP_KEY=123 --variable YOZIO_APP_SECRET=456 --variable URL_SCHEME=appname --variable=YOZIO_ENABLE_IOS_UNIVERSAL_LINKS=YES --variable=YOZIO_DOMAIN=r.company.com
+    cordova plugin add cordova-plugin-yozio --variable YOZIO_APP_KEY=123 --variable YOZIO_SECRET_KEY=456 --variable URL_SCHEME=appname --variable YOZIO_IOS_ENABLE_UNIVERSAL_LINKS=YES --variable YOZIO_DOMAIN=r.company.com
 
-> Note: Even if you are not using iOS universal links or a custom domain, the parameters still need to be specified. You can use `YOZIO_ENABLE_IOS_UNIVERSAL_LINKS=NO` and `YOZIO_DOMAIN=r.yoz.io` in this case.
+> Note: Even if you are not using iOS universal links or a custom domain, the parameters still need to be specified. You can use `YOZIO_IOS_ENABLE_UNIVERSAL_LINKS=NO` and `YOZIO_DOMAIN=r.yoz.io` in this case.
 
 Alternatively, you can install plugin directly from git by replacing the plugin ID with the git URL: `https://github.com/Justin-Credible/cordova-plugin-yozio#2.0.1`
 
@@ -46,7 +46,7 @@ Example Usage:
 
     YozioPlugin.getIsNewInstall(function(isNewInstall) {
         console.log("IsNewInstall: " + isNewInstall);
-    }
+    });
 
 ## Check If Was Opened Via Deep Link
 
@@ -60,7 +60,7 @@ Example Usage:
 
     YozioPlugin.getWasOpenedViaDeepLink(function(wasOpenedViaDeepLink) {
         console.log("WasOpenedViaDeepLink: " + wasOpenedViaDeepLink);
-    }
+    });
 
 ## Get Installation Metadata
 
@@ -73,8 +73,8 @@ Method Signature:
 Example Usage:
 
     YozioPlugin.getInstallMetadata(function(installMetadata) {
-        console.log("Install Metadata: " + installMetadata);
-    }
+        console.log("Install Metadata: " + JSON.stringify(installMetadata));
+    });
 
 ## Get Deep Link Metadata
 
@@ -87,8 +87,8 @@ Method Signature:
 Example Usage:
 
     YozioPlugin.getLastDeeplinkMetadata(function(metadata) {
-        console.log("Deep Link Metadata: " + metadata);
-    }
+        console.log("Deep Link Metadata: " + JSON.stringify(metadata));
+    });
 
 ## User Sign Up Tracking
 
