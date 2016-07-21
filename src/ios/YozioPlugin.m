@@ -12,6 +12,8 @@
 
 + (BOOL)isNewInstall;
 + (void)setIsNewInstall:(BOOL)isNewInstall;
++ (dispatch_semaphore_t)getProcessingSemaphore;
++ (void)setProcessingSemaphore:(dispatch_semaphore_t)semaphore;
 
 + (BOOL)wasOpenedViaDeepLink;
 + (void)setWasOpenedViaDeepLink:(BOOL)openedViaDeepLink;
@@ -44,9 +46,23 @@ static BOOL wasOpenedViaDeepLink = NO;
     wasOpenedViaDeepLink = openedViaDeepLink;
 }
 
+static dispatch_semaphore_t processingSemaphore;
+
++ (dispatch_semaphore_t)getProcessingSemaphore
+{
+    return processingSemaphore;
+}
+
++ (void)setProcessingSemaphore:(dispatch_semaphore_t)semaphore
+{
+    processingSemaphore = semaphore;
+}
+
 #pragma mark - Plugin Initialization
 
 - (void)pluginInitialize {
+
+    processingSemaphore = dispatch_semaphore_create(0);
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(application_enterBackground)
@@ -92,10 +108,22 @@ static BOOL wasOpenedViaDeepLink = NO;
 
 - (void)getLastDeeplinkMetadata:(CDVInvokedUrlCommand *)command {
 
-    NSDictionary* metaData = [Yozio getLastDeeplinkMetaDataAsHash];
+    [self.commandDelegate runInBackground:^{
 
-    CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:metaData];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        // Wait on the Yozio call 'handleDeeplinkURL' (found in AppDelegate+YozioPlugin.m)
+        // to complete before continuing.
+        // Calls to getLastDeeplinkMetaDataAsHash will not return data until this completes.
+        // Timeout of 5 seconds to ensure we never get a deadlock.
+        if (processingSemaphore != nil)
+        {
+            dispatch_semaphore_wait(processingSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+        }
+
+        NSDictionary* metaData = [Yozio getLastDeeplinkMetaDataAsHash];
+
+        CDVPluginResult *pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:metaData];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 - (void)trackSignup:(CDVInvokedUrlCommand *)command {

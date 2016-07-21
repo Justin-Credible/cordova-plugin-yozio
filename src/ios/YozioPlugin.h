@@ -12,6 +12,8 @@
 
 + (void)setIsNewInstall:(BOOL)isNewInstall;
 + (void)setWasOpenedViaDeepLink:(BOOL)isNewInstall;
++ (dispatch_semaphore_t)getProcessingSemaphore;
++ (void)setProcessingSemaphore:(dispatch_semaphore_t)semaphore;
 
 - (void)getIsNewInstall:(CDVInvokedUrlCommand *)command;
 - (void)getWasOpenedViaDeepLink:(CDVInvokedUrlCommand *)command;

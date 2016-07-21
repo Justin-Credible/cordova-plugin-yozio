@@ -137,6 +137,9 @@
             deeplinkMetaDataCallback:^(NSDictionary *metaData)
                 {
                     NSLog(@"YozioPlugin: Obtained metadata from a deep link: %@", metaData);
+                    if ([YozioPlugin getProcessingSemaphore] != nil) {
+                        dispatch_semaphore_signal([YozioPlugin getProcessingSemaphore]);
+                    }
                 }];
 
             [YozioPlugin setWasOpenedViaDeepLink: YES];
