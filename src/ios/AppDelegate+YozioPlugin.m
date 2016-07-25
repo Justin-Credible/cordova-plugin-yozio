@@ -131,6 +131,9 @@
 
             NSString *universalLinkDomain = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"YozioIosUniversalLinkDomain"];
 
+            dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+            [YozioPlugin setProcessingSemaphore:semaphore];
+            
             // Initialization with metadata callback
             [Yozio handleDeeplinkURL:userActivity.webpageURL
                withAssociatedDomains: universalLinkDomain ? @[universalLinkDomain] : @[@"r.yoz.io"]
@@ -138,7 +141,9 @@
                 {
                     NSLog(@"YozioPlugin: Obtained metadata from a deep link: %@", metaData);
                     if ([YozioPlugin getProcessingSemaphore] != nil) {
-                        dispatch_semaphore_signal([YozioPlugin getProcessingSemaphore]);
+                        dispatch_semaphore_t semaphore = [YozioPlugin getProcessingSemaphore];
+                        [YozioPlugin setProcessingSemaphore:nil];
+                        dispatch_semaphore_signal(semaphore);
                     }
                 }];
 

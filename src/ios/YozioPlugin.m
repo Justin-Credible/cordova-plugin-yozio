@@ -62,8 +62,6 @@ static dispatch_semaphore_t processingSemaphore;
 
 - (void)pluginInitialize {
 
-    processingSemaphore = dispatch_semaphore_create(0);
-
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(application_enterBackground)
                                                  name:UIApplicationDidEnterBackgroundNotification
