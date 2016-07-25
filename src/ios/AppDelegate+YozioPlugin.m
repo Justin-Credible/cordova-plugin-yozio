@@ -13,7 +13,7 @@
 
 #pragma mark Helpers
 
-+(void)swizzleMethod:(NSString*)originalSelectorString withMethod:(NSString*)swizzledSelectorString andDefaultMethod:(NSString*)defaultSelectorString forClass:(Class)class {
++(void)yozioPlugin_swizzleMethod:(NSString*)originalSelectorString withMethod:(NSString*)swizzledSelectorString andDefaultMethod:(NSString*)defaultSelectorString forClass:(Class)class {
 
     SEL originalSelector = NSSelectorFromString(originalSelectorString);
     SEL swizzledSelector = NSSelectorFromString(swizzledSelectorString);
@@ -61,20 +61,20 @@
 
     // Here we swizzle all of the AppDelegate methods we need to hook for Yozio's SDK.
 
-    [self swizzleMethod:@"application:didFinishLaunchingWithOptions:"
-             withMethod:@"yozioPlugin_application:didFinishLaunchingWithOptions:"
-       andDefaultMethod:@"yozioPluginDefault_application:didFinishLaunchingWithOptions:"
-               forClass:[self class]];
+    [self yozioPlugin_swizzleMethod:@"application:didFinishLaunchingWithOptions:"
+                         withMethod:@"yozioPlugin_application:didFinishLaunchingWithOptions:"
+                   andDefaultMethod:@"yozioPluginDefault_application:didFinishLaunchingWithOptions:"
+                           forClass:[self class]];
 
-    [self swizzleMethod:@"application:continueUserActivity:restorationHandler:"
-             withMethod:@"yozioPlugin_application:continueUserActivity:restorationHandler:"
-       andDefaultMethod:@"yozioPluginDefault_application:continueUserActivity:restorationHandler:"
-               forClass:[self class]];
+    [self yozioPlugin_swizzleMethod:@"application:continueUserActivity:restorationHandler:"
+                         withMethod:@"yozioPlugin_application:continueUserActivity:restorationHandler:"
+                   andDefaultMethod:@"yozioPluginDefault_application:continueUserActivity:restorationHandler:"
+                           forClass:[self class]];
 
-    [self swizzleMethod:@"application:openURL:sourceApplication:annotation:"
-             withMethod:@"yozioPlugin_application:openURL:sourceApplication:annotation:"
-       andDefaultMethod:@"yozioPluginDefault_application:openURL:sourceApplication:annotation:"
-               forClass:[self class]];
+    [self yozioPlugin_swizzleMethod:@"application:openURL:sourceApplication:annotation:"
+                         withMethod:@"yozioPlugin_application:openURL:sourceApplication:annotation:"
+                   andDefaultMethod:@"yozioPluginDefault_application:openURL:sourceApplication:annotation:"
+                           forClass:[self class]];
 }
 
 #pragma mark Swizzled Method: application:didFinishLaunchingWithOptions
