@@ -133,6 +133,7 @@
 
             dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
             [YozioPlugin setProcessingSemaphore:semaphore];
+            [YozioPlugin setWaitOnMetadata:YES];
             
             // Initialization with metadata callback
             [Yozio handleDeeplinkURL:userActivity.webpageURL
@@ -142,7 +143,7 @@
                     NSLog(@"YozioPlugin: Obtained metadata from a deep link: %@", metaData);
                     if ([YozioPlugin getProcessingSemaphore] != nil) {
                         dispatch_semaphore_t semaphore = [YozioPlugin getProcessingSemaphore];
-                        [YozioPlugin setProcessingSemaphore:nil];
+                        [YozioPlugin setWaitOnMetadata:NO];
                         dispatch_semaphore_signal(semaphore);
                     }
                 }];
