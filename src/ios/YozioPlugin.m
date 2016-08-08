@@ -58,6 +58,12 @@ static dispatch_semaphore_t processingSemaphore;
     processingSemaphore = semaphore;
 }
 
+static BOOL waitOnMetadata = NO;
+
++ (void)setWaitOnMetadata:(BOOL)wait {
+    waitOnMetadata = wait;
+}
+
 #pragma mark - Plugin Initialization
 
 - (void)pluginInitialize {
@@ -112,7 +118,7 @@ static dispatch_semaphore_t processingSemaphore;
         // to complete before continuing.
         // Calls to getLastDeeplinkMetaDataAsHash will not return data until this completes.
         // Timeout of 5 seconds to ensure we never get a deadlock.
-        if (processingSemaphore != nil)
+        if (processingSemaphore != nil && waitOnMetadata)
         {
             dispatch_semaphore_wait(processingSemaphore, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
         }
