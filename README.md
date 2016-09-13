@@ -22,7 +22,7 @@ For example, an app with all an app key of `123`, secret key of `456`, a link sc
 
 > Note: Even if you are not using iOS universal links or a custom domain, the parameters still need to be specified. You can use `YOZIO_IOS_ENABLE_UNIVERSAL_LINKS=NO` and `YOZIO_DOMAIN=r.yoz.io` in this case.
 
-Alternatively, you can install plugin directly from git by replacing the plugin ID with the git URL: `https://github.com/Justin-Credible/cordova-plugin-yozio#2.0.5`
+Alternatively, you can install plugin directly from git by replacing the plugin ID with the git URL: `https://github.com/Justin-Credible/cordova-plugin-yozio#2.0.6`
 
 # Usage
 
