@@ -182,6 +182,15 @@
               sourceApplication:(NSString *)sourceApplication
                      annotation:(id)annotation {
 
+    // If we already handled the deep link in continueUserActivity,
+    // just run the original method and bail.
+    if ([YozioPlugin wasOpenedViaDeepLink]) {
+        return [self yozioPlugin_application:application
+                                     openURL:url
+                           sourceApplication:sourceApplication
+                                  annotation:annotation];
+    }
+    
     // Track the deep link with Yozio.
     int result = [Yozio handleOpenURL: url];
 
