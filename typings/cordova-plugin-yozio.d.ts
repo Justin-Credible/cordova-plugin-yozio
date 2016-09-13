@@ -1,4 +1,4 @@
-// Type definitions for cordova-plugin-yozio 2.0.6
+// Type definitions for cordova-plugin-yozio 2.0.7
 // Project: https://github.com/Justin-Credible/cordova-plugin-yozio
 // Definitions by: Justin Unterreiner <https://github.com/Justin-Credible>
 // Definitions: https://github.com/borisyankov/DefinitelyTyped
