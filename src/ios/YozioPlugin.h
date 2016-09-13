@@ -15,6 +15,7 @@
 + (dispatch_semaphore_t)getProcessingSemaphore;
 + (void)setProcessingSemaphore:(dispatch_semaphore_t)semaphore;
 + (void)setWaitOnMetadata:(BOOL)wait;
++ (BOOL)wasOpenedViaDeepLink;
 
 - (void)getIsNewInstall:(CDVInvokedUrlCommand *)command;
 - (void)getWasOpenedViaDeepLink:(CDVInvokedUrlCommand *)command;
