@@ -7,6 +7,6 @@
 	<key>request_timeout</key>
 	<integer>7</integer>
 	<key>use_sf_safari_view_controller</key>
-	<true/>
+	<false/>
 </dict>
 </plist>
