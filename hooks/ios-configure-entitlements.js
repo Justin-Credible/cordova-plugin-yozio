@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * This build hook is responsible for adding the domain from the URL_SCHEME plugin variable
+ * This build hook is responsible for adding the domain from the YOZIO_DOMAIN plugin variable
  * to the XCode associated domains entitlement. If an entitlement file does not already exist
  * one will be created.
  */
@@ -85,11 +85,11 @@ function getYozioDomainFromPluginConfig() {
     var config = JSON.parse(json);
 
     // Sanity check
-    if (!config.installed_plugins || !config.installed_plugins[PLUGIN_ID] || !config.installed_plugins[PLUGIN_ID]["URL_SCHEME"]) {
-        throwError(": sanity check failed; unable to locate URL_SCHEME for the plugin in: " + platformConfigPath)
+    if (!config.installed_plugins || !config.installed_plugins[PLUGIN_ID] || !config.installed_plugins[PLUGIN_ID]["YOZIO_DOMAIN"]) {
+        throwError(": sanity check failed; unable to locate YOZIO_DOMAIN for the plugin in: " + platformConfigPath)
     }
 
-    return config.installed_plugins[PLUGIN_ID]["URL_SCHEME"];
+    return config.installed_plugins[PLUGIN_ID]["YOZIO_DOMAIN"];
 }
 
 function getNewEntitlementsFileName() {
