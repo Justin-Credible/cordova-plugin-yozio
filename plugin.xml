@@ -128,8 +128,6 @@
 
         <framework src="SafariServices.framework" weak="true" />
 
-        <resource-file src="src/ios/yozio-plugin.entitlements" />
-
         <hook type="after_plugin_install" src="hooks/ios-configure-entitlements.js" />
         <hook type="before_plugin_uninstall" src="hooks/ios-configure-entitlements.js" />
 

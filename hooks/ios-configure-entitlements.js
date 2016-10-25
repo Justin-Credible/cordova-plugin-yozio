@@ -1,144 +1,318 @@
 #!/usr/bin/env node
 
-// Based on: https://raw.githubusercontent.com/AzureAD/azure-activedirectory-library-for-cordova/master/scripts/configureEntitlementsIos.js
-// Copyright (c) Microsoft Open Technologies, Inc.  All rights reserved.  Licensed under the Apache License, Version 2.0.
+/**
+ * This build hook is responsible for adding the domain from the URL_SCHEME plugin variable
+ * to the XCode associated domains entitlement. If an entitlement file does not already exist
+ * one will be created.
+ */
 
+/**
+ * The ID of this plugin; this should match the value in plugin.xml.
+ */
 var PLUGIN_ID = "cordova-plugin-yozio";
 
-var CODE_SIGN_ENTITLEMENTS = "CODE_SIGN_ENTITLEMENTS";
+/**
+ * Node modules imported via the main function.
+ */
+var path, fs, xcode, plist, common;
 
-var ACTION_INSTALL = 1;
-var ACTION_UNINSTALL = 2;
+/**
+ * The Cordova context; see https://cordova.apache.org/docs/en/latest/guide/appdev/hooks/#script-interface
+ */
+var context;
 
-module.exports = function (ctx) {
+/**
+ * The main hook entrypoint.
+ * 
+ * This build hook is wired up to execute only for the iOS platform via plugin.xml.
+ */
+module.exports = function (cordovaContext) {
 
-    var action;
+    // Save off so we don't have to pass it around everywhere.
+    context = cordovaContext;
 
-    if (ctx.hook == "after_plugin_install") {
-        console.log("Adding required keychain sharing capability (yozio-plugin.entitlements)..");
-        action = ACTION_INSTALL;
-    } else if (ctx.hook == "before_plugin_uninstall" || ctx.hook == "before_plugin_rm") {
-        action = ACTION_UNINSTALL;
-        console.log("Removing keychain sharing capability (yozio-plugin.entitlements)..");
-    } else {
-        // script is intended to be used only after plugin install and before uninstall
-        return;
-    };
+    // Grab the modules we need for this build hook.
+    path = cordovaContext.requireCordovaModule("path");
+    fs = cordovaContext.requireCordovaModule("fs");
+    xcode = cordovaContext.requireCordovaModule("xcode");
+    plist = cordovaContext.requireCordovaModule("plist");
+    common = cordovaContext.requireCordovaModule("cordova-common");
 
-    var fs = ctx.requireCordovaModule("fs");
-    var path = ctx.requireCordovaModule("path");
-    var xcode = ctx.requireCordovaModule("xcode");
-
-    var deferral = new ctx.requireCordovaModule("q").defer();
-
-    var platformRoot = path.join(ctx.opts.projectRoot, "platforms", "ios");
-
-    // this api is required to clear internal cordova ios projects cache;
-    // otherwise our changes will be overwritten by cached item
-    var iosProjectFile =  null;
-    try {
-        // recent versions (4.0+) of cordova-ios with own platform api
-        iosProjectFile = require(path.join(ctx.opts.projectRoot, "platforms/ios/cordova/lib/projectFile"));
-    } catch (ex) {
-        // fallback to cordova-lib (shared platform functionality)
-        iosProjectFile = ctx.requireCordovaModule("../plugman/platforms/ios");
+    // Determine the action depending on the current plugin operation.
+    if (context.hook === "after_plugin_install") {
+        addEntitlement();
     }
-
-    fs.readdir(platformRoot, function (err, data) {
-        if(err) {
-            throw err;
-        }
-
-        var projFolder;
-        var projName;
-
-        // Find the project folder by looking for *.xcodeproj
-        if(data && data.length) {
-            data.forEach(function (folder) {
-                if(folder.match(/\.xcodeproj$/)) {
-                    projFolder = path.join(platformRoot, folder);
-                    projName = path.basename(folder, ".xcodeproj");
-                }
-            });
-        }
-
-        if(!projFolder) {
-            throw new Error("Could not find an .xcodeproj folder in: " + platformRoot);
-        }
-
-        var projectPath = path.join(projFolder, "project.pbxproj");
-        var xcodeProject = xcode.project(projectPath);
-
-        var entitlementsFile = path.join(projName, "Resources/yozio-plugin.entitlements");
-        // escape path so that it works if project name contains whitespaces
-        entitlementsFile = "\"" + entitlementsFile + "\"";
-
-        console.log("Attempt to update xcode project: " + projectPath);
-
-        xcodeProject.parseSync();
-
-        var buildConfig = xcodeProject.pbxXCBuildConfigurationSection();
-
-        if (action == ACTION_INSTALL) {
-
-            // Modify the entitlements file to include the domain from the plugin preferences.
-
-            var platformConfigPath = path.join(ctx.opts.projectRoot, "platforms", "ios", "ios.json");
-
-            var platformConfig = require(platformConfigPath);
-            var domain = platformConfig.installed_plugins[PLUGIN_ID].YOZIO_DOMAIN;
-
-            if (!domain) {
-                domain = "r.yoz.io";
-            }
-
-            console.log("Adding $YOZIO_DOMAIN '" + domain + "' to entitlements file " + entitlementsFilePath);
-
-            var entitlementsFilePath = path.join(ctx.opts.projectRoot, "platforms", "ios", projName, "Resources", "yozio-plugin.entitlements");
-
-            // Perform a replacement of the variable in the entitlements file.
-            var contents = fs.readFileSync(entitlementsFilePath, "utf-8");
-            contents = contents.replace("$YOZIO_DOMAIN", "applinks:" + domain);
-            fs.writeFileSync(entitlementsFilePath, contents, "utf8");
-
-            // Add the entitlements file reference to the project file.
-            console.log("Adding reference to entitlements file: " + entitlementsFilePath);
-            setbuildSettingsProp(buildConfig, projName, CODE_SIGN_ENTITLEMENTS, entitlementsFile);
-
-        } else { // uninstall
-            console.log("Removing entitlements from " + CODE_SIGN_ENTITLEMENTS + " section");
-            setbuildSettingsProp(buildConfig, projName, CODE_SIGN_ENTITLEMENTS, null);
-        }
-
-        fs.writeFileSync(projectPath, xcodeProject.writeSync());
-
-        if (iosProjectFile && iosProjectFile.purgeProjectFileCache) {
-            console.log("Updating iOS projects cache...");
-            iosProjectFile.purgeProjectFileCache(platformRoot);
-        }
-
-        console.log("Operation completed");
-        deferral.resolve();
-    });
-
-    return deferral.promise;
+    else if (context.hook === "before_plugin_uninstall") {
+        removeEntitlement();
+    }
 };
 
-function setbuildSettingsProp(projSection, projName, propName, value) {
+/** Helpers *************************************************************************************/
 
-    Object.keys(projSection).forEach(function (p) {
-        // we check for PRODUCT_NAME here to skip CordovaLib
-        // TODO better to test for "%projName%" or %projName%
-        if (p == "buildSettings" && projSection[p]["PRODUCT_NAME"]) {
-            console.log(propName + " = " + value);
+function log(message) {
+    console.log(PLUGIN_ID + ": " + message);
+}
 
-            if (value !== null) {
-                projSection[p][propName] = value;
-            } else {
-                delete projSection[p][propName];
-            }
-        } else if (typeof projSection[p] == "object") {
-            setbuildSettingsProp(projSection[p], projName, propName, value);
+function throwError(message) {
+    throw new Error(PLUGIN_ID + ": " + message);
+}
+
+function getXcodeProjectFilePath() {
+    var ConfigParser = common.ConfigParser;
+
+    var configXmlPath = path.join(context.opts.projectRoot, "config.xml");
+    var config = new ConfigParser(configXmlPath);
+
+    var projectName = config.name();
+    var projectPath = path.join(context.opts.projectRoot, "platforms", "ios", projectName + ".xcodeproj", "project.pbxproj");
+
+    return projectPath;
+}
+
+function getYozioDomainFromPluginConfig() {
+
+    // I'm not sure why, but this collection always has null values.
+    // return context.opts.plugin.pluginInfo.getPreferences()["YOZIO_DOMAIN"];
+
+    var platformConfigPath = path.join(context.opts.projectRoot, "platforms", "ios", "ios.json");
+
+    // Sanity check
+    if (!fs.existsSync(platformConfigPath)) {
+        throwError(": sanity check failed; unable to locate iOS platform configuration at: " + platformConfigPath);
+    }
+
+    var json = fs.readFileSync(platformConfigPath, { encoding: "utf8" });
+    var config = JSON.parse(json);
+
+    // Sanity check
+    if (!config.installed_plugins || !config.installed_plugins[PLUGIN_ID] || !config.installed_plugins[PLUGIN_ID]["URL_SCHEME"]) {
+        throwError(": sanity check failed; unable to locate URL_SCHEME for the plugin in: " + platformConfigPath)
+    }
+
+    return config.installed_plugins[PLUGIN_ID]["URL_SCHEME"];
+}
+
+function getNewEntitlementsFileName() {
+    var ConfigParser = common.ConfigParser;
+
+    var configXmlPath = path.join(context.opts.projectRoot, "config.xml");
+    var config = new ConfigParser(configXmlPath);
+
+    var projectName = config.name();
+
+    return projectName + ".entitlements";
+}
+
+function getNewEntitlementsPath() {
+    var ConfigParser = common.ConfigParser;
+
+    var configXmlPath = path.join(context.opts.projectRoot, "config.xml");
+    var config = new ConfigParser(configXmlPath);
+
+    var projectName = config.name();
+    var fileName = getNewEntitlementsFileName();
+
+    return path.join(projectName, "Resources", fileName);
+}
+
+function getEntitlementsFilePath(buildConfig) {
+
+    if (!buildConfig) {
+        throwError(": a build configuration is required to set an entitlements path.");
+    }
+
+    var returnValue = null;
+
+    Object.keys(buildConfig).forEach(function (key) {
+
+        var section = buildConfig[key];
+
+        // The field we are looking for is nested on buildSettings.
+        if (!section["buildSettings"]) {
+            return; // continue
         }
+
+        // Only look at sections that have a product name.
+        // The cordova lib project does not have a product name, so this effectively skips it.
+        if (!section["buildSettings"]["PRODUCT_NAME"]) {
+            return; // continue
+        }
+
+        var entitlementsPath = section["buildSettings"]["CODE_SIGN_ENTITLEMENTS"];
+
+        if (!entitlementsPath) {
+            return; // continue
+        }
+
+        if (returnValue) {
+            log("Multiple entitlement files were found; now using: " + entitlementsPath);
+        }
+
+        returnValue = entitlementsPath;
     });
+
+    return returnValue;
+}
+
+function setEntitlementsFilePath(buildConfig, path) {
+
+    if (!buildConfig) {
+        throwError(": a build configuration is required to set an entitlements path.");
+    }
+
+    Object.keys(buildConfig).forEach(function (key) {
+
+        var section = buildConfig[key];
+
+        // The field we are looking for is nested on buildSettings.
+        if (!section["buildSettings"]) {
+            return; // continue
+        }
+
+        // Only look at sections that have a product name.
+        // The cordova lib project does not have a product name, so this effectively skips it.
+        if (!section["buildSettings"]["PRODUCT_NAME"]) {
+            return; // continue
+        }
+
+        section["buildSettings"]["CODE_SIGN_ENTITLEMENTS"] = path;
+    });
+}
+
+/** Add Entitlement *****************************************************************************/
+
+function addEntitlement(context) {
+
+    // Keep track if we needed to create an entitlements file.
+    // If we created one, we'll need to set the path to it in the XCode project file later.
+    var createdEntitlements = false;
+
+    // Load the XCode project.
+    var xcodeProjectPath = getXcodeProjectFilePath();
+    var xcodeProject = xcode.project(xcodeProjectPath);
+    xcodeProject.parseSync();
+    buildConfig = xcodeProject.pbxXCBuildConfigurationSection();
+
+    // Determine the paths to the entitlements file; we need the path relative to the Cordova project for reading/writing
+    // the file from this build hook, and we need the path relative to the XCode project so the XCode can find it when
+    // open opening the project.
+    var entitlementsPathRelativeToXCodeProject = getEntitlementsFilePath(buildConfig);
+    var entitlementsPathRelativeToCordovaRoot = null;
+
+    if (entitlementsPathRelativeToXCodeProject) {
+        // If we found an entitlements file in the XCode project we don't need to create one.
+        // In this case, just calculate the same path relative to the Cordova project root.
+        entitlementsPathRelativeToCordovaRoot = path.join("platforms", "ios", entitlementsPathRelativeToXCodeProject);
+    }
+    else {
+        // If the XCode project didn't already have an entitlements file, then create one.
+        entitlementsPathRelativeToXCodeProject = getNewEntitlementsPath();
+        entitlementsPathRelativeToCordovaRoot = path.join("platforms", "ios", entitlementsPathRelativeToXCodeProject);
+
+        log("An entitlements file was not found; creating one at: " + entitlementsPathRelativeToCordovaRoot);
+
+        var plistEmptyXml = plist.build({}, { pretty: true });
+        fs.writeFileSync(entitlementsPathRelativeToCordovaRoot, plistEmptyXml, { encoding: "utf8" });
+
+        // We'll need to write to the XCode project later.
+        createdEntitlements = true;
+    }
+
+    log("Using entitlements file at: " + entitlementsPathRelativeToCordovaRoot);
+
+    // Read the entitlements file (which is a plist/XML format) and parse it into a native JSON object.
+    var plistOriginalXml = fs.readFileSync(entitlementsPathRelativeToCordovaRoot, "utf8");
+    var plistObj = plist.parse(plistOriginalXml);
+
+    // If the associated domains array doesn't already exist, then create it.
+    if (!plistObj["com.apple.developer.associated-domains"]) {
+        plistObj["com.apple.developer.associated-domains"] = [];
+    }
+
+    var associatedDomains = plistObj["com.apple.developer.associated-domains"];
+
+    // Grab the domain from the plugin preferences (as defined during cordova plugin add).
+    var domain = getYozioDomainFromPluginConfig();
+
+    // If the domain already exists in the list, then we can bail out now.
+    if (associatedDomains.indexOf(domain) !== -1) {
+        log("Associated domain for '" + domain + "' was already present; no changes required.");
+        return;
+    }
+
+    // Add the domain to the associated domain list.
+    log("Adding associated domain for '" + domain + "'.");
+    associatedDomains.push(domain);
+
+    // Serialize back into the XML/plist format and write back to disk.
+    var plistNewXml = plist.build(plistObj, { pretty: true });
+    fs.writeFileSync(entitlementsPathRelativeToCordovaRoot, plistNewXml, { encoding: "utf8" });
+
+    // Update the XCode project with the path to the entitlements file (if we created one).
+    if (createdEntitlements) {
+        log("Updating XCode project with reference to the new entitlements file.");
+        xcodeProject.addResourceFile(getNewEntitlementsFileName());
+        setEntitlementsFilePath(buildConfig, entitlementsPathRelativeToXCodeProject);
+        fs.writeFileSync(xcodeProjectPath, xcodeProject.writeSync());
+    }
+}
+
+/** Remove Entitlement **************************************************************************/
+
+function removeEntitlement(context) {
+
+    // Load the XCode project.
+    var xcodeProjectPath = getXcodeProjectFilePath();
+    var xcodeProject = xcode.project(xcodeProjectPath);
+    xcodeProject.parseSync();
+    buildConfig = xcodeProject.pbxXCBuildConfigurationSection();
+
+    // Determine the paths to the entitlements file; we need the path relative to the Cordova project for reading/writing
+    // the file from this build hook, and we need the path relative to the XCode project so the XCode can find it when
+    // open opening the project.
+
+    var entitlementsPathRelativeToXCodeProject = getEntitlementsFilePath(buildConfig);
+
+    // If an entitlements file doesn't exist, then there is nothing to do.
+    if (!entitlementsPathRelativeToXCodeProject) {
+        log("No entitlements file present; nothing to remove.");
+        return;
+    }
+
+    var entitlementsPathRelativeToCordovaRoot = path.join("platforms", "ios", entitlementsPathRelativeToXCodeProject);
+
+    log("Using entitlements file at: " + entitlementsPathRelativeToCordovaRoot);
+
+    // Read the entitlements file (which is a plist/XML format) and parse it into a native JSON object.
+    var plistOriginalXml = fs.readFileSync(entitlementsPathRelativeToCordovaRoot, "utf8");
+    var plistObj = plist.parse(plistOriginalXml);
+
+    // If the associated domains array doesn't exist, then there is nothing to do.
+    if (!plistObj["com.apple.developer.associated-domains"]) {
+        log("No associated domains present; nothing to remove.");
+        return;
+    }
+
+    var associatedDomains = plistObj["com.apple.developer.associated-domains"];
+
+    // Grab the domain from the plugin preferences (as defined during cordova plugin add).
+    var domain = getYozioDomainFromPluginConfig();
+
+    // Attempt to locate the domain in the list.
+    var index = associatedDomains.indexOf(domain);
+
+    // If the domain is not in the list, then we can bail out now.
+    if (index === -1) {
+        log("Associated domain for '" + domain + "' was not present; no changes required.");
+        return;
+    }
+
+    // Remove the domain from the list.
+    associatedDomains = associatedDomains.splice(index, 1);
+
+    log("Removing domain '" + domain + "' from associated domains list.");
+
+    // Serialize back into the XML/plist format and write back to disk.
+    var plistNewXml = plist.build(plistObj, { pretty: true });
+    fs.writeFileSync(entitlementsPathRelativeToCordovaRoot, plistNewXml, { encoding: "utf8" });
 }
