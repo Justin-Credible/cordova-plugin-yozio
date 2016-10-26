@@ -181,7 +181,7 @@ function setEntitlementsFilePath(buildConfig, path) {
 
 /** Add Entitlement *****************************************************************************/
 
-function addEntitlement(context) {
+function addEntitlement() {
 
     // Keep track if we needed to create an entitlements file.
     // If we created one, we'll need to set the path to it in the XCode project file later.
@@ -259,7 +259,7 @@ function addEntitlement(context) {
 
 /** Remove Entitlement **************************************************************************/
 
-function removeEntitlement(context) {
+function removeEntitlement() {
 
     // Load the XCode project.
     var xcodeProjectPath = getXcodeProjectFilePath();
